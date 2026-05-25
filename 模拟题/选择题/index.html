@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>系统架构设计师 - 综合知识模拟题</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --card-bg: #ffffff;
+    --primary: #3b82f6;
+    --primary-light: #eff6ff;
+    --success: #10b981;
+    --success-light: #ecfdf5;
+    --warning: #f59e0b;
+    --warning-light: #fffbeb;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --border: #e2e8f0;
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #3b82f6 100%);
+    color: white;
+    padding: 32px 0;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+
+  .header h1 { font-size: 24px; font-weight: 700; }
+  .header .subtitle { font-size: 14px; opacity: 0.85; margin-top: 6px; }
+  .header .stats { font-size: 13px; opacity: 0.75; margin-top: 8px; }
+
+  .exam-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .exam-selector label {
+    font-size: 13px;
+    opacity: 0.9;
+  }
+
+  .exam-selector select {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.15);
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .exam-selector select option {
+    background: #1e3a5f;
+    color: white;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 80px;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .toolbar select, .toolbar button {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    cursor: pointer;
+    background: var(--card-bg);
+    color: var(--text);
+    transition: all 0.2s;
+  }
+
+  .toolbar select:hover, .toolbar button:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .toolbar .right {
+    margin-left: auto;
+  }
+
+  .progress-bar {
+    background: var(--border);
+    border-radius: 999px;
+    height: 6px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .progress-bar .fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+
+  .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+
+  .card-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    background: #fafbfc;
+  }
+
+  .card-index {
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .card-tags { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+
+  .tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+
+  .tag.type { background: var(--primary-light); color: var(--primary); }
+  .tag.topic { background: var(--success-light); color: var(--success); }
+
+  .card-body { padding: 20px; }
+
+  .question-text {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+
+  .options { list-style: none; }
+
+  .option-item {
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+
+  .option-item:hover { border-color: var(--primary); background: var(--primary-light); }
+
+  .option-item.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+
+  .option-item.correct {
+    border-color: var(--success);
+    background: var(--success-light);
+  }
+
+  .option-item.wrong {
+    border-color: #ef4444;
+    background: #fef2f2;
+  }
+
+  .option-index {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .option-item.selected .option-index {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+  }
+
+  .option-item.correct .option-index {
+    border-color: var(--success);
+    background: var(--success);
+    color: white;
+  }
+
+  .option-item.wrong .option-index {
+    border-color: #ef4444;
+    background: #ef4444;
+    color: white;
+  }
+
+  .card-footer {
+    padding: 0 20px 16px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--card-bg);
+    color: var(--text-secondary);
+  }
+
+  .btn:hover { border-color: var(--primary); color: var(--primary); }
+
+  .btn-answer.active {
+    background: var(--success-light);
+    border-color: var(--success);
+    color: var(--success);
+  }
+
+  .btn-reason.active {
+    background: var(--warning-light);
+    border-color: var(--warning);
+    color: var(--warning);
+  }
+
+  .reveal-section {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+    margin: 0 20px;
+  }
+
+  .reveal-section.show { max-height: 500px; }
+
+  .reveal-content {
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .answer-content {
+    background: var(--success-light);
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+    font-weight: 600;
+  }
+
+  .reason-content {
+    background: var(--warning-light);
+    border: 1px solid #fde68a;
+    color: #92400e;
+  }
+
+  .back-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+    transition: transform 0.2s;
+  }
+
+  .back-top:hover { transform: scale(1.1); }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 18px; }
+    .container { padding: 16px 10px 60px; }
+    .card-body { padding: 14px; }
+    .card-footer { padding: 0 14px 12px; }
+    .question-text { font-size: 14px; }
+    .option-item { font-size: 13px; padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1 id="examTitle">系统架构设计师 - 综合知识模拟题</h1>
+  <div class="subtitle" id="examDesc">加载中…</div>
+  <div class="stats">共 <span id="totalCount">0</span> 题 · 已答 <span id="answeredCount">0</span> 题 · 正确 <span id="correctCount">0</span> 题</div>
+  <div class="exam-selector">
+    <label>切换套题：</label>
+    <select id="examSelect"></select>
+  </div>
+</div>
+
+<div class="container">
+  <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="toolbar">
+    <select id="filterType">
+      <option value="all">全部题型</option>
+    </select>
+    <select id="filterTopic">
+      <option value="all">全部考点</option>
+    </select>
+    <div class="right">
+      <button onclick="toggleAllAnswer()">显示/隐藏全部答案</button>
+    </div>
+  </div>
+
+  <div id="questionList"></div>
+</div>
+
+<button class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<script src="exams.js"></script>
+<script>
+(function() {
+  let questions = [];
+  let state = {};
+
+  const filterType = document.getElementById('filterType');
+  const filterTopic = document.getElementById('filterTopic');
+  const examSelect = document.getElementById('examSelect');
+
+  function loadExam(examId) {
+    const exam = exams.find(e => e.id === examId);
+    if (!exam) return;
+
+    document.getElementById('examTitle').textContent = '系统架构设计师 - 综合知识' + exam.name;
+    document.getElementById('examDesc').textContent = exam.desc;
+    document.title = '系统架构设计师 - ' + exam.name;
+
+    const oldScript = document.getElementById('questionsScript');
+    if (oldScript) oldScript.remove();
+
+    window.questions = undefined;
+
+    const script = document.createElement('script');
+    script.id = 'questionsScript';
+    script.src = exam.dir + '/questions.js';
+    script.onload = function() {
+      questions = window.questions || [];
+      state = {};
+      questions.forEach(q => {
+        state[q.id] = { selectedIdx: null, showAnswer: false, showReason: false };
+      });
+
+      filterType.innerHTML = '<option value="all">全部题型</option>';
+      filterTopic.innerHTML = '<option value="all">全部考点</option>';
+
+      const types = [...new Set(questions.map(q => q.type))];
+      const topics = [...new Set(questions.map(q => q.topic))];
+      types.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t; opt.textContent = t;
+        filterType.appendChild(opt);
+      });
+      topics.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t; opt.textContent = t;
+        filterTopic.appendChild(opt);
+      });
+
+      document.getElementById('totalCount').textContent = questions.length;
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      render();
+    };
+    document.head.appendChild(script);
+
+    if (history.replaceState) {
+      history.replaceState(null, '', '#' + exam.id);
+    }
+  }
+
+  exams.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e.id;
+    opt.textContent = e.name;
+    examSelect.appendChild(opt);
+  });
+
+  var initialExam = location.hash.slice(1) || exams[0].id;
+  examSelect.value = initialExam;
+  examSelect.addEventListener('change', function() {
+    loadExam(this.value);
+  });
+
+  function updateStats() {
+    let answered = 0, correct = 0;
+    questions.forEach(q => {
+      const s = state[q.id];
+      if (s.selectedIdx !== null) {
+        answered++;
+        if (s.selectedIdx === q.answer) correct++;
+      }
+    });
+    document.getElementById('answeredCount').textContent = answered;
+    document.getElementById('correctCount').textContent = correct;
+    document.getElementById('progressFill').style.width = (answered / questions.length * 100) + '%';
+  }
+
+  function render() {
+    const list = document.getElementById('questionList');
+    const ft = filterType.value;
+    const fp = filterTopic.value;
+
+    const filtered = questions.filter(q =>
+      (ft === 'all' || q.type === ft) && (fp === 'all' || q.topic === fp)
+    );
+
+    list.innerHTML = filtered.map((q, i) => {
+      const s = state[q.id];
+      const num = questions.indexOf(q) + 1;
+      return `
+        <div class="card" data-id="${q.id}">
+          <div class="card-header">
+            <div class="card-index">${num}</div>
+            <div class="card-tags">
+              <span class="tag type">${q.type}</span>
+              <span class="tag topic">${q.topic}</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="question-text">${q.question}</div>
+            <ul class="options">
+              ${q.options.map(o => {
+                let cls = 'option-item';
+                if (s.selectedIdx === o.index && s.showAnswer) {
+                  cls += o.index === q.answer ? ' correct' : ' wrong';
+                } else if (s.showAnswer && o.index === q.answer) {
+                  cls += ' correct';
+                } else if (s.selectedIdx === o.index) {
+                  cls += ' selected';
+                }
+                return `<li class="${cls}" onclick="selectOption('${q.id}','${o.index}')">
+                  <span class="option-index">${o.index}</span>
+                  <span>${o.content}</span>
+                </li>`;
+              }).join('')}
+            </ul>
+          </div>
+          <div class="reveal-section ${s.showAnswer ? 'show' : ''}" id="answer-${q.id}">
+            <div class="reveal-content answer-content">正确答案：${q.answer}</div>
+          </div>
+          <div class="reveal-section ${s.showReason ? 'show' : ''}" id="reason-${q.id}">
+            <div class="reveal-content reason-content">${q.reason}</div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-answer ${s.showAnswer ? 'active' : ''}" onclick="toggleAnswer('${q.id}')">${s.showAnswer ? '隐藏答案' : '显示答案'}</button>
+            <button class="btn btn-reason ${s.showReason ? 'active' : ''}" onclick="toggleReason('${q.id}')">${s.showReason ? '隐藏解析' : '显示解析'}</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.selectOption = function(id, idx) {
+    const s = state[id];
+    if (s.showAnswer) return;
+    s.selectedIdx = idx;
+    updateStats();
+    render();
+  };
+
+  window.toggleAnswer = function(id) {
+    state[id].showAnswer = !state[id].showAnswer;
+    render();
+  };
+
+  window.toggleReason = function(id) {
+    state[id].showReason = !state[id].showReason;
+    render();
+  };
+
+  window.toggleAllAnswer = function() {
+    const anyShown = Object.values(state).some(s => s.showAnswer || s.showReason);
+    questions.forEach(q => {
+      state[q.id].showAnswer = !anyShown;
+      state[q.id].showReason = !anyShown;
+    });
+    render();
+  };
+
+  filterType.addEventListener('change', render);
+  filterTopic.addEventListener('change', render);
+
+  loadExam(initialExam);
+})();
+</script>
+</body>
+</html>
