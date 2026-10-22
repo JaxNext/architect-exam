@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>架构风格 · 闪卡</title>
+<style>
+  :root{
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --line:#e3e8f0;
+    --text:#1d2433;
+    --sub:#6b7688;
+    --accent:#4f5bd5;
+    --accent-soft:#eef0ff;
+    --ok:#0f9d6e;
+    --ok-soft:#e8f7f1;
+    --bad:#d64545;
+    --bad-soft:#fdecec;
+    --blue:#2f7dd1;
+    --blue-soft:#e9f2fd;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:28px 16px 60px;
+    background:radial-gradient(1200px 600px at 50% -10%, #e8ecff 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:860px;margin:0 auto;}
+
+  header h1{font-size:22px;margin:0 0 6px;letter-spacing:.5px;}
+  header p{margin:0 0 18px;color:var(--sub);font-size:13px;}
+
+  .toolbar{
+    display:flex;gap:16px;flex-wrap:wrap;align-items:center;
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;
+  }
+  .stats{display:flex;gap:22px;font-size:12px;color:var(--sub);}
+  .stats b{display:block;font-size:17px;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.3;}
+  .toolbar .tip{margin-left:auto;font-size:12px;color:#9aa3b4;}
+
+  .stage{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px 20px 20px;box-shadow:0 8px 26px -18px rgba(35,50,100,.35);
+  }
+  .stage-head{text-align:center;padding-bottom:20px;border-bottom:1px dashed var(--line);}
+  .prompt{font-size:12px;color:var(--sub);letter-spacing:2px;margin-bottom:12px;}
+  .style-name{
+    font-size:clamp(27px,5vw,38px);font-weight:700;line-height:1.3;letter-spacing:1px;
+    word-break:break-word;
+  }
+  .style-name.dim{opacity:.45;font-size:22px;}
+
+  .deck{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px;
+    perspective:1200px;
+  }
+  .flip{height:235px;cursor:pointer;}
+  .flip.def{grid-column:1/-1;height:230px;}
+  .flip-inner{
+    position:relative;width:100%;height:100%;
+    transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,.1,.2,1);
+  }
+  .flip.flipped .flip-inner{transform:rotateY(180deg);}
+  .deck.no-anim .flip-inner{transition:none;}
+
+  .face{
+    position:absolute;inset:0;border-radius:14px;
+    backface-visibility:hidden;-webkit-backface-visibility:hidden;
+    display:flex;flex-direction:column;padding:16px 15px;overflow:hidden;
+  }
+  .front{
+    align-items:center;justify-content:center;gap:10px;
+    border:1px solid var(--line);background:#fbfcff;
+  }
+  .front .tag{font-size:16px;font-weight:700;letter-spacing:1px;}
+  .front .cue{font-size:12px;color:#a8b0c0;display:flex;align-items:center;gap:4px;}
+  .front .cue::after{content:"⟳";font-size:13px;}
+
+  .flip.pros .front .tag{color:var(--ok);}
+  .flip.cons .front .tag{color:var(--bad);}
+  .flip.scene .front .tag{color:var(--blue);}
+  .flip.pros .front{background:linear-gradient(180deg,#fbfefc,#f2fbf7);border-color:#d5eee4;}
+  .flip.cons .front{background:linear-gradient(180deg,#fffbfb,#fdf3f3);border-color:#f3d9d9;}
+  .flip.scene .front{background:linear-gradient(180deg,#fbfdff,#f1f7fd);border-color:#d8e6f5;}
+
+  .back{transform:rotateY(180deg);align-items:flex-start;}
+  .flip.pros .back{background:var(--ok-soft);border:1px solid #c6ecdd;}
+  .flip.cons .back{background:var(--bad-soft);border:1px solid #f7d2d2;}
+  .flip.scene .back{background:var(--blue-soft);border:1px solid #d2e4f7;}
+  .flip.def .front{background:linear-gradient(180deg,#fbfbff,#f2f3ff);border-color:#dcdff7;}
+  .flip.def .front .tag{color:var(--accent);}
+  .flip.def .back{background:var(--accent-soft);border:1px solid #d9dcf7;}
+  .back .tag{font-size:12px;font-weight:700;letter-spacing:2px;margin-bottom:8px;flex:none;}
+  .flip.pros .back .tag{color:var(--ok);}
+  .flip.cons .back .tag{color:var(--bad);}
+  .flip.scene .back .tag{color:var(--blue);}
+  .flip.def .back .tag{color:var(--accent);}
+  .back ul{
+    list-style:none;margin:0;padding:0;overflow-y:auto;width:100%;
+    font-size:14px;line-height:1.45;color:#3c4454;
+  }
+  .back li{position:relative;padding:0 0 0 13px;margin-bottom:6px;overflow-wrap:anywhere;}
+  .back li::before{
+    content:"";position:absolute;left:0;top:.55em;
+    width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.4;
+  }
+  .sections{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+    width:100%;flex:1;min-height:0;overflow-y:auto;
+  }
+  .sec-label{
+    display:inline-block;font-size:11px;font-weight:700;letter-spacing:1px;
+    color:var(--accent);background:#fff;border:1px solid #d9dcf7;border-radius:5px;
+    padding:1px 6px;margin-bottom:5px;
+  }
+  .sec p{margin:0;font-size:13.5px;line-height:1.55;color:#3c4454;overflow-wrap:anywhere;}
+
+  .actions{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+  button.primary{
+    border:0;background:var(--accent);color:#fff;font-size:15px;font-weight:600;
+    padding:12px 26px;border-radius:11px;cursor:pointer;font-family:inherit;transition:.15s;
+  }
+  button.primary:hover{background:#4149bd;}
+  button.primary:active{transform:translateY(1px);}
+  button.ghost{
+    border:1px solid var(--line);background:#fff;color:var(--text);font-size:14px;
+    padding:11px 22px;border-radius:11px;cursor:pointer;font-family:inherit;transition:.15s;
+  }
+  button.ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+  .hint{text-align:center;font-size:12px;color:#9aa3b4;margin-top:14px;}
+  .hint kbd{
+    font-family:inherit;background:#eef0f6;border:1px solid var(--line);border-bottom-width:2px;
+    border-radius:5px;padding:0 5px;font-size:11px;color:#5b6478;
+  }
+
+  @media (max-width:640px){
+    body{padding:18px 12px 50px;}
+    .deck{grid-template-columns:1fr;}
+    .flip{height:180px;}
+    .flip.def{height:390px;}
+    .sections{grid-template-columns:1fr;gap:10px;}
+    .toolbar .tip{margin-left:0;width:100%;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>架构风格 · 闪卡</h1>
+    <p>看风格名称，先在心里背出定义与构成、优点、缺点、适用场景，再逐张翻开对照。进度按洗牌袋轮转，10 种风格全部出完才重开一轮。</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="stats">
+      <div>本轮进度<b id="stRound">1/10</b></div>
+      <div>本张已翻开<b id="stReveal">0/4</b></div>
+    </div>
+    <div class="tip">洗牌袋：每轮 10 种风格随机顺序出现，不重复、不遗漏</div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <div class="prompt" id="prompt">请根据名称背诵该架构风格</div>
+      <div class="style-name" id="styleName">—</div>
+    </div>
+
+    <div class="deck" id="deck"></div>
+
+    <div class="actions">
+      <button class="ghost" id="revealAll">全部翻开</button>
+      <button class="primary" id="nextBtn">下一题</button>
+    </div>
+    <div class="hint">
+      点击任意卡片翻开 / 再点收起 · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> 翻开对应卡片 · <kbd>空格</kbd> 或 <kbd>→</kbd> 下一题
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- 题库：来自 速记.md「高频架构风格对比表」 ---------- */
+  var STYLES = [
+    { name:'分层架构',
+      def:'把系统按职责切成一层一层的“楼层”，上层只调用下层，每层只干一类事，改一层尽量不影响其他层。',
+      compose:'表现层（界面/接口）→ 业务逻辑层 → 数据访问层 → 数据库，层与层之间通过接口调用。',
+      example:'Java Web 项目的 Controller-Service-DAO 三层结构；操作系统也采用分层设计。',
+      pros:['结构清晰','低耦合高内聚','易维护','便于复用','可独立扩展'],
+      cons:['层级过多性能损耗','跨层调用复杂','下层修改影响上层'],
+      scenes:['通用企业系统','Web系统','操作系统','大型软件（最常用）'] },
+
+    { name:'管道-过滤器',
+      def:'把处理流程串成一条流水线：数据像水一样依次流过每个步骤，每个步骤只负责加工数据，不关心上下游是谁。',
+      compose:'过滤器（各自独立的处理步骤）+ 管道（在步骤之间传递数据），过滤器之间不共享状态。',
+      example:'编译器（词法 → 语法 → 语义 → 代码生成）；命令行 cat log | grep error | sort；音视频转码。',
+      pros:['模块独立','松耦合','易复用','可并行处理','支持替换组件'],
+      cons:['不适合交互性强系统','数据传输开销大','不支持共享状态'],
+      scenes:['编译器','音视频处理','日志分析','批处理','数据流式系统'] },
+
+    { name:'仓库（知识库）架构',
+      def:'系统围着一份共享的中央数据运转：组件之间不直接对话，都从中间这份数据里读，再把结果写回去。',
+      compose:'中央数据仓库 + 若干独立组件（知识源）；组件读出、处理、写回，主要交互都发生在仓库上。',
+      example:'IDE（代码索引库配合编辑、编译、调试组件）、数据库系统、CAD 工具。',
+      pros:['数据集中管理','共享数据方便','减少冗余','控制简单'],
+      cons:['中心数据瓶颈','并发访问易冲突','容错性差'],
+      scenes:['数据库系统','CAD工具','IDE','实时监控系统','决策系统'] },
+
+    { name:'主程序-子程序（调用返回）',
+      def:'一个主程序像项目经理，按流程逐个调用子程序干活，子程序干完把结果交回来，主程序再决定下一步。',
+      compose:'主程序负责总流程控制 + 多个子程序负责具体功能，通过函数/过程调用和返回值交互。',
+      example:'C 语言 main() 调用各个函数；早期单机小工具、简单的嵌入式程序。',
+      pros:['结构简单','逻辑清晰','易调试','执行效率高'],
+      cons:['紧耦合','可扩展性差','复用性弱','容错差'],
+      scenes:['小型单机软件','嵌入式简单程序','早期单体系统'] },
+
+    { name:'事件驱动（隐式调用）',
+      def:'组件之间不直接调用，而是“发通知”：谁发出事件，订阅了这个事件的人就自动被触发，发的人并不知道谁在听。',
+      compose:'事件生产者（发布者）+ 事件通道（事件循环/消息总线）+ 事件消费者（订阅者）。',
+      example:'点击 GUI 按钮触发事件；Kafka/RabbitMQ 消息队列；物联网设备上报数据触发告警。',
+      pros:['松耦合','响应快','可扩展性强','支持异步','容错好'],
+      cons:['逻辑难调试','流程不直观','事务一致性难保证'],
+      scenes:['物联网','监控告警','GUI系统','微服务异步通信','消息队列场景'] },
+
+    { name:'微服务架构',
+      def:'把一个大系统拆成多个能独立开发、独立部署的小服务，每个服务只负责一块业务，彼此通过网络接口协作。',
+      compose:'多个独立服务 + 服务注册发现 + API 网关 + 配置中心 + 链路监控；每个服务可以有自己独立的数据库。',
+      example:'电商系统拆成用户、商品、订单、支付服务，各自独立上线，一个坏了不影响其他服务。',
+      pros:['独立部署','弹性扩展','技术栈灵活','容错性好','团队独立开发'],
+      cons:['运维复杂','分布式事务难','网络开销大','治理成本高'],
+      scenes:['互联网高并发系统','大型业务系统','需要快速迭代的平台'] },
+
+    { name:'SOA架构',
+      def:'把系统功能包装成可复用的“服务”，再用一条企业服务总线把不同系统、不同技术的服务连起来，重点在整合已有系统。',
+      compose:'服务提供者 + 服务消费者 + 服务注册中心 + ESB（负责路由、协议转换和消息转换），服务粒度通常较粗。',
+      example:'政企用 ESB 整合人事、财务、OA 等遗留系统；银行内部多个系统互联。',
+      pros:['服务复用','松耦合','异构兼容','面向业务','可集成多系统'],
+      cons:['架构笨重','性能一般','ESB中心化易瓶颈'],
+      scenes:['大型政企系统','多系统集成','传统企业数字化','遗留系统整合'] },
+
+    { name:'黑板架构',
+      def:'多个“专家”围着一块共享黑板解题：谁有线索就写到黑板上，谁能接着处理就继续写，直到问题被解决。',
+      compose:'黑板（共享的中间结果）+ 知识源（各领域专家模块）+ 控制器（决定下一步由谁来处理）。',
+      example:'语音识别、医疗诊断专家系统、图像识别等 AI 类问题求解。',
+      pros:['多源知识协同','问题求解灵活','适合模糊问题'],
+      cons:['调试困难','控制复杂','效率较低'],
+      scenes:['人工智能','模式识别','医疗诊断','故障检测','专家系统'] },
+
+    { name:'C/S（客户端/服务器）',
+      def:'用户电脑上装一个客户端软件，界面和部分计算在本地完成，数据和核心业务放在服务器上，两边配合干活。',
+      compose:'客户端（胖客户端，负责界面与本地处理）+ 服务器（业务处理与数据存储），通常使用专用协议通信。',
+      example:'QQ/微信桌面版、网络游戏客户端、企业内部桌面业务系统。',
+      pros:['交互强','响应快','可充分利用本地资源'],
+      cons:['客户端部署麻烦','跨平台差','维护成本高'],
+      scenes:['桌面软件','游戏','内部业务系统','需要强交互场景'] },
+
+    { name:'B/S（浏览器/服务器）',
+      def:'用户不用装软件，打开浏览器输入网址就能用；界面在浏览器里运行，业务和数据都放在服务器上。',
+      compose:'浏览器（表现层）+ Web/应用服务器（业务逻辑）+ 数据库，通过 HTTP/HTTPS 通信。',
+      example:'各类管理后台、在线政务系统、网页版邮箱和网盘。',
+      pros:['无需安装客户端','跨平台','维护简单','部署方便'],
+      cons:['依赖网络','交互弱','安全性相对弱'],
+      scenes:['政务系统','管理后台','Web平台','移动端网页应用'] }
+  ];
+
+  var TYPES = [
+    { key:'pros',   cls:'pros',  label:'优点' },
+    { key:'cons',   cls:'cons',  label:'缺点' },
+    { key:'scenes', cls:'scene', label:'适用场景' }
+  ];
+
+  var state = {
+    deck: [],       // 洗牌袋：本轮剩余的风格下标
+    roundTotal: 0,  // 本轮应出题数
+    shown: 0,       // 本轮已出题数
+    last: -1,       // 上一题，避免新一轮首题重复
+    current: -1,
+    revealed: 0
+  };
+
+  var $ = function(id){ return document.getElementById(id); };
+  var elDeck      = $('deck');
+  var elStyleName = $('styleName');
+  var elPrompt    = $('prompt');
+  var elRevealAll = $('revealAll');
+  var elNext      = $('nextBtn');
+
+  /* ---------- 抽题：洗牌袋 ---------- */
+  function shuffle(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+  function draw(){
+    if(!state.deck.length){
+      var indices = [];
+      for(var i = 0; i < STYLES.length; i++) indices.push(i);
+      shuffle(indices);
+      // 避免与上一题连着重复
+      if(indices.length > 1 && indices[0] === state.last){
+        var t = indices[0]; indices[0] = indices[1]; indices[1] = t;
+      }
+      state.deck = indices;
+      state.roundTotal = indices.length;
+      state.shown = 0;
+    }
+    state.current = state.deck.shift();
+    state.last = state.current;
+    state.shown++;
+    return STYLES[state.current];
+  }
+
+  /* ---------- 渲染 ---------- */
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(m){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+    });
+  }
+
+  function renderDeck(style){
+    elDeck.innerHTML = '';
+
+    var cards = [{
+      cls:'def',
+      label:'定义 · 构成',
+      back:'<div class="sections">' +
+             '<div class="sec"><span class="sec-label">定义</span><p>' + esc(style.def) + '</p></div>' +
+             '<div class="sec"><span class="sec-label">构成</span><p>' + esc(style.compose) + '</p></div>' +
+             '<div class="sec"><span class="sec-label">实例</span><p>' + esc(style.example) + '</p></div>' +
+           '</div>'
+    }];
+
+    TYPES.forEach(function(t){
+      cards.push({
+        cls:t.cls,
+        label:t.label,
+        back:'<ul>' + style[t.key].map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>'
+      });
+    });
+
+    cards.forEach(function(c, i){
+      var flip = document.createElement('div');
+      flip.className = 'flip ' + c.cls;
+      flip.dataset.idx = i;
+      flip.innerHTML =
+        '<div class="flip-inner">' +
+          '<div class="face front">' +
+            '<span class="tag">' + c.label + '</span>' +
+            '<span class="cue">点击翻开</span>' +
+          '</div>' +
+          '<div class="face back">' +
+            '<span class="tag">' + c.label + '</span>' +
+            c.back +
+          '</div>' +
+        '</div>';
+      flip.addEventListener('click', function(){ toggleFlip(flip); });
+      elDeck.appendChild(flip);
+    });
+
+    resetFlips();
+  }
+
+  function toggleFlip(flip){
+    flip.classList.toggle('flipped');
+    syncRevealed();
+  }
+
+  function syncRevealed(){
+    var n = elDeck.querySelectorAll('.flip.flipped').length;
+    state.revealed = n;
+    $('stReveal').textContent = n + '/4';
+  }
+
+  function resetFlips(){
+    elDeck.classList.add('no-anim');
+    Array.prototype.forEach.call(elDeck.querySelectorAll('.flip'), function(f){
+      f.classList.remove('flipped');
+    });
+    void elDeck.offsetHeight;
+    elDeck.classList.remove('no-anim');
+    syncRevealed();
+  }
+
+  function renderMeta(){
+    $('stRound').textContent = state.shown + '/' + state.roundTotal;
+  }
+
+  function nextCard(){
+    var style = draw();
+    state.current = STYLES.indexOf(style);
+    elPrompt.textContent = '请根据名称背诵该架构风格';
+    elStyleName.className = 'style-name';
+    elStyleName.textContent = style.name;
+    renderDeck(style);
+    renderMeta();
+  }
+
+  /* ---------- 事件 ---------- */
+  elNext.addEventListener('click', nextCard);
+
+  elRevealAll.addEventListener('click', function(){
+    var flips = elDeck.querySelectorAll('.flip');
+    var allOpen = elDeck.querySelectorAll('.flip.flipped').length === flips.length;
+    Array.prototype.forEach.call(flips, function(f){
+      f.classList.toggle('flipped', !allOpen);
+    });
+    syncRevealed();
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.target && e.target.tagName === 'BUTTON' && (e.key === 'Enter' || e.key === ' ')) return;
+    if(e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter'){
+      e.preventDefault();
+      nextCard();
+    }else if(e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4'){
+      var flip = elDeck.querySelector('.flip[data-idx="' + (Number(e.key) - 1) + '"]');
+      if(flip) toggleFlip(flip);
+    }
+  });
+
+  /* ---------- 启动 ---------- */
+  nextCard();
+})();
+</script>
+</body>
+</html>

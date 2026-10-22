@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>质量属性场景六要素 · 闪卡</title>
+<style>
+  :root{
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --line:#e3e8f0;
+    --text:#1d2433;
+    --sub:#6b7688;
+    --accent:#4f5bd5;
+    --accent-soft:#eef0ff;
+    --ok:#0f9d6e;
+    --ok-soft:#e8f7f1;
+    --bad:#d64545;
+    --bad-soft:#fdecec;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:28px 16px 60px;
+    background:radial-gradient(1200px 600px at 50% -10%, #e8ecff 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:720px;margin:0 auto;}
+
+  header h1{
+    font-size:22px;margin:0 0 6px;letter-spacing:.5px;
+  }
+  header p{margin:0 0 18px;color:var(--sub);font-size:13px;}
+
+  .toolbar{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;
+  }
+  .seg{display:flex;background:#f1f3f9;border-radius:10px;padding:3px;gap:2px;}
+  .seg button{
+    border:0;background:transparent;color:var(--sub);
+    padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;
+    font-family:inherit;transition:.15s;
+  }
+  .seg button.on{background:var(--card);color:var(--accent);font-weight:600;box-shadow:0 1px 3px rgba(30,40,80,.1);}
+  .seg button:hover:not(.on){color:var(--text);}
+
+  .stats{
+    display:flex;gap:18px;flex-wrap:wrap;margin-left:auto;font-size:12px;color:var(--sub);
+  }
+  .stats b{display:block;font-size:17px;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.25;}
+  .stats .ok b{color:var(--ok);}
+  .stats .bad b{color:var(--bad);}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:34px 24px 26px;text-align:center;box-shadow:0 8px 26px -18px rgba(35,50,100,.35);
+    min-height:300px;display:flex;flex-direction:column;justify-content:center;
+  }
+  .prompt{font-size:12px;color:var(--sub);letter-spacing:2px;margin-bottom:18px;}
+  .keyword{
+    font-size:clamp(26px,6vw,38px);font-weight:700;line-height:1.35;letter-spacing:1px;
+    margin-bottom:26px;word-break:break-word;
+  }
+  .keyword.dim{opacity:.45;}
+
+  .answer-row{display:flex;gap:10px;justify-content:center;max-width:520px;margin:0 auto;width:100%;}
+  input[type=text]{
+    flex:1;min-width:0;font-size:16px;padding:13px 16px;border:1.5px solid var(--line);
+    border-radius:11px;outline:none;font-family:inherit;background:#fbfcfe;color:var(--text);
+    transition:.15s;
+  }
+  input[type=text]:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 4px var(--accent-soft);}
+  input[type=text]:disabled{background:#f5f6fa;color:var(--sub);}
+
+  button.primary{
+    border:0;background:var(--accent);color:#fff;font-size:15px;font-weight:600;
+    padding:13px 24px;border-radius:11px;cursor:pointer;font-family:inherit;
+    transition:.15s;white-space:nowrap;
+  }
+  button.primary:hover{background:#4149bd;}
+  button.primary:active{transform:translateY(1px);}
+  button.ghost{
+    border:1px solid var(--line);background:#fff;color:var(--text);font-size:14px;
+    padding:12px 22px;border-radius:11px;cursor:pointer;font-family:inherit;transition:.15s;
+  }
+  button.ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+  .hint{font-size:12px;color:#9aa3b4;margin-top:14px;}
+
+  .feedback{margin-top:22px;text-align:left;border-radius:12px;padding:0;max-width:520px;margin-left:auto;margin-right:auto;}
+  .feedback.show{padding:14px 16px;}
+  .feedback.ok{background:var(--ok-soft);border:1px solid #c6ecdd;}
+  .feedback.bad{background:var(--bad-soft);border:1px solid #f7d2d2;}
+  .feedback .title{font-weight:700;font-size:15px;margin-bottom:6px;}
+  .feedback.ok .title{color:var(--ok);}
+  .feedback.bad .title{color:var(--bad);}
+  .feedback .detail{font-size:13px;color:#4b5464;line-height:1.7;}
+  .feedback .detail code{
+    background:rgba(0,0,0,.05);border-radius:5px;padding:1px 6px;font-family:inherit;font-weight:600;
+  }
+  .next-wrap{text-align:center;margin-top:18px;}
+
+  section.book{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;}
+  section.book h2{font-size:15px;margin:0 0 4px;display:flex;align-items:center;gap:8px;}
+  section.book h2 .pill{background:var(--bad-soft);color:var(--bad);font-size:12px;padding:2px 9px;border-radius:20px;font-weight:600;}
+  section.book .desc{font-size:12px;color:var(--sub);margin:0 0 14px;}
+  .empty{font-size:13px;color:#9aa3b4;padding:14px 0;text-align:center;}
+
+  ul.wrong{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  ul.wrong li{
+    display:flex;align-items:center;gap:12px;border:1px solid var(--line);
+    border-radius:11px;padding:11px 13px;font-size:13px;background:#fcfdff;
+  }
+  ul.wrong li .kw{font-weight:600;flex:1;min-width:0;overflow-wrap:anywhere;}
+  ul.wrong li .ans{color:var(--accent);font-weight:600;white-space:nowrap;}
+  ul.wrong li .meta{color:#9aa3b4;font-size:11px;white-space:nowrap;}
+  ul.wrong li .del{
+    border:0;background:transparent;color:#b8bfcc;cursor:pointer;font-size:16px;
+    padding:2px 4px;border-radius:6px;line-height:1;
+  }
+  ul.wrong li .del:hover{color:var(--bad);background:var(--bad-soft);}
+
+  .book-actions{display:flex;gap:10px;margin-top:14px;justify-content:flex-end;}
+  .book-actions button{
+    border:1px solid var(--line);background:#fff;color:var(--sub);font-size:12px;
+    padding:8px 14px;border-radius:9px;cursor:pointer;font-family:inherit;
+  }
+  .book-actions button:hover{color:var(--bad);border-color:#f0c6c6;}
+
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);
+    background:#1d2433;color:#fff;font-size:13px;padding:10px 18px;border-radius:10px;
+    opacity:0;pointer-events:none;transition:.25s;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+
+  @media (max-width:520px){
+    body{padding:18px 12px 50px;}
+    .stats{margin-left:0;width:100%;gap:22px;}
+    .answer-row{flex-direction:column;}
+    button.primary{width:100%;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>质量属性场景六要素 · 闪卡</h1>
+    <p>看示例，写出它属于六要素中的哪一个。Enter 提交 / 提交后 Enter 或 空格 进入下一题。</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="seg">
+      <button id="modeAll" class="on">全部题库</button>
+      <button id="modeWrong">错题复习</button>
+    </div>
+    <div class="stats">
+      <div>本轮答题<b id="stTotal">0</b></div>
+      <div class="ok">答对<b id="stOk">0</b></div>
+      <div>正确率<b id="stRate">—</b></div>
+      <div class="bad">错题<b id="stWrong">0</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="prompt" id="prompt">该示例属于六要素中的哪一个？</div>
+    <div class="keyword" id="keyword">—</div>
+
+    <div class="answer-row">
+      <input type="text" id="answer" placeholder="输入要素名称…" autocomplete="off" spellcheck="false">
+      <button class="primary" id="submitBtn">提交</button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    <div class="next-wrap" id="nextWrap" style="display:none">
+      <button class="ghost" id="nextBtn">下一题 (Enter / 空格)</button>
+    </div>
+    <div class="hint">共 17 个示例 · 6 个要素 · 每轮随机洗牌，抽完全部才重开一轮</div>
+  </div>
+
+  <section class="book">
+    <h2>错题本 <span class="pill" id="bookCount">0</span></h2>
+    <p class="desc">答错自动记录；在「错题复习」中连续答对 2 次即移出错题本。</p>
+    <ul class="wrong" id="wrongList"></ul>
+    <div class="empty" id="bookEmpty">还没有错题，继续保持。</div>
+    <div class="book-actions">
+      <button id="clearBtn">清空错题本</button>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- 题库：来自 案例分析题技巧-必答题.md「质量属性场景六要素」 ---------- */
+  var ELEMENTS = [
+    { name:'刺激源',   examples:['XX类型用户','外部系统','异常故障'],
+      aliases:['刺激源','激励源','触发源','刺激者'] },
+    { name:'刺激',     examples:['发起XX请求','发生XX故障','高并发访问'],
+      aliases:['刺激'] },
+    { name:'制品',     examples:['目标业务系统','核心服务模块'],
+      aliases:['制品','系统制品','目标制品'] },
+    { name:'环境',     examples:['正常运行','高峰期','故障降级场景'],
+      aliases:['环境','运行环境'] },
+    { name:'响应',     examples:['系统完成XX处理','触发自愈','拒绝非法访问'],
+      aliases:['响应'] },
+    { name:'响应度量', examples:['在X秒内完成','可用性达99.99%','零数据泄露等量化指标'],
+      aliases:['响应度量','响应指标','度量指标','响应衡量'] }
+  ];
+
+  var CARDS = [];
+  ELEMENTS.forEach(function(el){
+    el.examples.forEach(function(ex){
+      CARDS.push({ key: el.name + '|' + ex, keyword: ex, answer: el.name, el: el });
+    });
+  });
+
+  var STORE_KEY = 'qa_six_elements_wrongbook_v1';
+
+  /* ---------- 状态 ---------- */
+  var state = {
+    mode:'all',        // all | review
+    current:null,
+    answered:false,
+    lastKey:null,
+    deck:[],
+    roundTotal:0,
+    roundOk:0
+  };
+  var wrongBook = load();
+
+  /* ---------- 持久化 ---------- */
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return {};
+      var obj = JSON.parse(raw);
+      return (obj && typeof obj === 'object') ? obj : {};
+    }catch(e){ return {}; }
+  }
+  function save(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(wrongBook)); }catch(e){}
+  }
+  function wrongCount(){ return Object.keys(wrongBook).length; }
+
+  /* ---------- 模糊匹配 ---------- */
+  function normalize(s){
+    return String(s == null ? '' : s)
+      .toLowerCase()
+      .replace(/\s|\u3000/g,'')
+      .replace(/[，。、,.;；:：!！?？"'“”‘’()（）\[\]【】<>《》\-—_/\\|+*&^%$#@~`·]/g,'');
+  }
+  function namesOf(el){
+    return [el.name].concat(el.aliases || []).map(normalize);
+  }
+  function isCorrect(input, card){
+    var n = normalize(input);
+    if(!n) return false;
+
+    var mine = namesOf(card.el);
+    if(mine.indexOf(n) !== -1) return true;      // 精确命中本要素
+
+    // 精确命中「别的」要素 → 直接判错。
+    // 否则「刺激」与「刺激源」、「响应」与「响应度量」会因互相包含而误判为正确。
+    for(var i=0;i<ELEMENTS.length;i++){
+      if(ELEMENTS[i].name === card.answer) continue;
+      if(namesOf(ELEMENTS[i]).indexOf(n) !== -1) return false;
+    }
+
+    // 落到这里说明不是任何要素的标准名/别名，再放宽做包含匹配
+    for(var j=0;j<mine.length;j++){
+      var c = mine[j];
+      if(c && n.indexOf(c) !== -1) return true;                 // 输入包含标准名，如「响应度量指标」
+      if(n.length >= 3 && c && c.indexOf(n) !== -1) return true; // 标准名包含输入，如「响应度」
+    }
+    return false;
+  }
+
+  /* ---------- DOM ---------- */
+  var $ = function(id){ return document.getElementById(id); };
+  var elKeyword  = $('keyword');
+  var elPrompt   = $('prompt');
+  var elAnswer   = $('answer');
+  var elSubmit   = $('submitBtn');
+  var elFeedback = $('feedback');
+  var elNextWrap = $('nextWrap');
+  var elNext     = $('nextBtn');
+  var elWrongList= $('wrongList');
+  var elBookEmpty= $('bookEmpty');
+  var elBookCount= $('bookCount');
+  var elToast    = $('toast');
+
+  /* ---------- 抽题：洗牌袋 ----------
+     每一轮把当前题库完整洗牌一次，依次抽完再重新洗牌，
+     保证任何一个示例都不会长时间不出现。        */
+  function pool(){
+    if(state.mode === 'review'){
+      return CARDS.filter(function(c){ return !!wrongBook[c.key]; });
+    }
+    return CARDS.slice();
+  }
+  function shuffle(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+  function drawCard(){
+    var p = pool();
+    if(!p.length){ state.deck = []; return null; }
+
+    // 同步牌袋：题库里已不存在的（如错题被移出）直接从牌袋剔除
+    var valid = {};
+    p.forEach(function(c){ valid[c.key] = true; });
+    state.deck = state.deck.filter(function(k){ return valid[k]; });
+
+    // 牌袋抽空 → 重新洗一整轮
+    if(!state.deck.length){
+      var keys = p.map(function(c){ return c.key; });
+      shuffle(keys);
+      // 避免上一题与新一轮第一题连着重复
+      if(keys.length > 1 && keys[0] === state.lastKey){
+        var t = keys[0]; keys[0] = keys[1]; keys[1] = t;
+      }
+      state.deck = keys;
+    }
+
+    var key = state.deck.shift();
+    for(var i = 0; i < CARDS.length; i++){
+      if(CARDS[i].key === key) return CARDS[i];
+    }
+    return null;
+  }
+
+  function nextCard(){
+    var card = drawCard();
+    state.answered = false;
+    state.current = card;
+
+    elFeedback.className = 'feedback';
+    elFeedback.innerHTML = '';
+    elNextWrap.style.display = 'none';
+    elAnswer.disabled = false;
+    elAnswer.value = '';
+    elKeyword.className = 'keyword';
+
+    if(!card){
+      elPrompt.textContent = '错题本已清空';
+      elKeyword.textContent = '太棒了，去「全部题库」继续刷吧';
+      elKeyword.classList.add('dim');
+      elAnswer.disabled = true;
+      elSubmit.disabled = true;
+      elAnswer.style.display = 'none';
+      elSubmit.style.display = 'none';
+      return;
+    }
+    elAnswer.style.display = '';
+    elSubmit.style.display = '';
+    elSubmit.disabled = false;
+    elPrompt.textContent = state.mode === 'review' ? '错题复习 · 该示例属于六要素中的哪一个？' : '该示例属于六要素中的哪一个？';
+    elKeyword.textContent = card.keyword;
+    elAnswer.focus();
+  }
+
+  /* ---------- 提交 ---------- */
+  function submit(){
+    if(state.answered || !state.current) return;
+    var raw = elAnswer.value;
+    if(!raw.trim()){ elAnswer.focus(); return; }
+
+    state.answered = true;
+    state.lastKey = state.current.key;
+    state.roundTotal++;
+
+    var ok = isCorrect(raw, state.current);
+    if(ok) state.roundOk++;
+
+    // 错题本维护
+    var entry = wrongBook[state.current.key];
+    if(ok){
+      if(entry){
+        entry.streak = (entry.streak || 0) + 1;
+        if(entry.streak >= 2){
+          delete wrongBook[state.current.key];
+          toast('已移出错题本：' + state.current.keyword);
+        }
+      }
+    }else{
+      if(!entry) entry = wrongBook[state.current.key] = { keyword: state.current.keyword, answer: state.current.answer, wrong: 0, streak: 0 };
+      entry.wrong++;
+      entry.streak = 0;
+      entry.keyword = state.current.keyword;
+      entry.answer = state.current.answer;
+    }
+    save();
+
+    // 反馈
+    elFeedback.className = 'feedback show ' + (ok ? 'ok' : 'bad');
+    var list = state.current.el.examples.join('、');
+    if(ok){
+      elFeedback.innerHTML =
+        '<div class="title">✓ 回答正确</div>' +
+        '<div class="detail"><code>' + esc(state.current.answer) + '</code>：' + esc(list) + '</div>';
+    }else{
+      elFeedback.innerHTML =
+        '<div class="title">✗ 回答错误</div>' +
+        '<div class="detail">你输入的是：<code>' + (esc(raw.trim()) || '—') + '</code><br>' +
+        '正确答案：<code>' + esc(state.current.answer) + '</code><br>' +
+        '该要素示例：' + esc(list) + '</div>';
+    }
+
+    elAnswer.disabled = true;
+    elSubmit.disabled = true;
+    elNextWrap.style.display = 'block';
+    elNext.focus();
+
+    renderStats();
+    renderBook();
+  }
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(m){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+    });
+  }
+
+  /* ---------- 渲染 ---------- */
+  function renderStats(){
+    $('stTotal').textContent = state.roundTotal;
+    $('stOk').textContent = state.roundOk;
+    $('stRate').textContent = state.roundTotal ? Math.round(state.roundOk / state.roundTotal * 100) + '%' : '—';
+    $('stWrong').textContent = wrongCount();
+  }
+
+  function renderBook(){
+    var keys = Object.keys(wrongBook);
+    elBookCount.textContent = keys.length;
+    elBookEmpty.style.display = keys.length ? 'none' : 'block';
+    elWrongList.innerHTML = '';
+
+    keys.sort(function(a,b){ return (wrongBook[b].wrong||0) - (wrongBook[a].wrong||0); });
+
+    keys.forEach(function(k){
+      var it = wrongBook[k];
+      var li = document.createElement('li');
+
+      var kw = document.createElement('span');
+      kw.className = 'kw';
+      kw.textContent = it.keyword || k.split('|')[1];
+
+      var ans = document.createElement('span');
+      ans.className = 'ans';
+      ans.textContent = it.answer || k.split('|')[0];
+
+      var meta = document.createElement('span');
+      meta.className = 'meta';
+      meta.textContent = '错' + (it.wrong||0) + '次 · 连对' + Math.min(it.streak||0,2) + '/2';
+
+      var del = document.createElement('button');
+      del.className = 'del';
+      del.title = '移除';
+      del.textContent = '×';
+      del.addEventListener('click', function(){
+        delete wrongBook[k];
+        save(); renderBook(); renderStats();
+        if(state.mode === 'review') nextCard();
+      });
+
+      li.appendChild(kw); li.appendChild(ans); li.appendChild(meta); li.appendChild(del);
+      elWrongList.appendChild(li);
+    });
+  }
+
+  var toastTimer = null;
+  function toast(msg){
+    elToast.textContent = msg;
+    elToast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ elToast.classList.remove('show'); }, 1800);
+  }
+
+  /* ---------- 事件 ---------- */
+  elSubmit.addEventListener('click', submit);
+  elNext.addEventListener('click', nextCard);
+
+  document.addEventListener('keydown', function(e){
+    if(e.target && e.target.tagName === 'BUTTON' && (e.key === 'Enter' || e.key === ' ')) return;
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      if(state.answered) nextCard(); else submit();
+    }else if(e.key === ' ' && state.answered){
+      e.preventDefault();
+      nextCard();
+    }
+  });
+
+  $('modeAll').addEventListener('click', function(){ setMode('all'); });
+  $('modeWrong').addEventListener('click', function(){ setMode('review'); });
+
+  function setMode(m){
+    if(state.mode === m) return;
+    state.mode = m;
+    state.roundTotal = 0;
+    state.roundOk = 0;
+    state.lastKey = null;
+    state.deck = [];   // 切换模式后重新洗牌
+    $('modeAll').classList.toggle('on', m === 'all');
+    $('modeWrong').classList.toggle('on', m === 'review');
+    if(m === 'review' && wrongCount() === 0) toast('错题本是空的，先去「全部题库」练几题吧');
+    renderStats();
+    nextCard();
+  }
+
+  $('clearBtn').addEventListener('click', function(){
+    if(wrongCount() === 0) return;
+    if(!confirm('确定清空全部错题记录？')) return;
+    wrongBook = {};
+    save();
+    renderBook(); renderStats();
+    if(state.mode === 'review') nextCard();
+    toast('错题本已清空');
+  });
+
+  /* ---------- 启动 ---------- */
+  renderBook();
+  renderStats();
+  nextCard();
+})();
+</script>
+</body>
+</html>
