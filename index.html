@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>软考架构师 · 闪卡合集</title>
+<style>
+  :root{
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --line:#e3e8f0;
+    --text:#1d2433;
+    --sub:#6b7688;
+    --accent:#4f5bd5;
+    --accent-deep:#3b45b5;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:44px 20px 64px;
+    background:
+      radial-gradient(900px 460px at 12% -8%, #e2e7ff 0%, transparent 60%),
+      radial-gradient(800px 420px at 92% 4%, #e6f6f0 0%, transparent 58%),
+      var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;}
+
+  header{margin-bottom:34px;}
+  .kicker{
+    display:inline-block;font-size:12px;letter-spacing:2px;color:var(--accent);
+    background:#eef0ff;border:1px solid #dfe3ff;border-radius:999px;
+    padding:5px 12px;margin-bottom:14px;
+  }
+  h1{font-size:clamp(28px,4vw,38px);margin:0 0 10px;letter-spacing:1px;}
+  .lead{margin:0;color:var(--sub);font-size:14px;line-height:1.7;max-width:620px;}
+
+  section{margin-top:30px;}
+  .sec-head{
+    display:flex;align-items:baseline;gap:12px;
+    margin:0 0 14px;padding-left:12px;border-left:4px solid var(--accent);
+  }
+  .sec-head h2{font-size:17px;margin:0;letter-spacing:.5px;}
+  .sec-head span{font-size:12px;color:#9aa3b4;}
+
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));
+    gap:14px;
+  }
+  a.card{
+    display:flex;flex-direction:column;gap:10px;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 18px 16px;text-decoration:none;color:inherit;
+    box-shadow:0 6px 18px -16px rgba(35,50,100,.45);
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    min-height:136px;
+  }
+  a.card:hover{
+    transform:translateY(-3px);
+    border-color:#c9cfef;
+    box-shadow:0 14px 30px -18px rgba(45,60,130,.5);
+  }
+  a.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+  .card h3{font-size:16px;margin:0;line-height:1.4;}
+  .card p{margin:0;font-size:13px;line-height:1.65;color:var(--sub);}
+  .meta{
+    margin-top:auto;display:flex;align-items:center;justify-content:space-between;
+    font-size:11px;color:#9aa3b4;
+  }
+  .meta .arrow{color:var(--accent);font-size:15px;transition:transform .18s ease;}
+  a.card:hover .meta .arrow{transform:translateX(3px);}
+  .badge{
+    font-size:11px;color:#5b6478;background:#f2f4fa;
+    border:1px solid #e6e9f2;border-radius:999px;padding:2px 8px;
+  }
+
+  footer{
+    margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+    font-size:12px;color:#9aa3b4;line-height:1.8;
+  }
+  footer code{
+    font-family:inherit;background:#eef0f6;border-radius:5px;padding:1px 6px;color:#5b6478;
+  }
+  footer a{color:var(--accent);text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">ARCHITECT EXAM</div>
+    <h1>软考架构师 · 闪卡合集</h1>
+    <p class="lead">按考点分组的记忆卡片。每张卡片看名称先默背，再点击翻开对照；抽题使用洗牌袋，每轮全部出不重复、不遗漏。</p>
+  </header>
+
+  <section>
+    <div class="sec-head"><h2>架构基础</h2><span>风格 · 视图</span></div>
+    <div class="grid">
+      <a class="card" href="./模拟题/架构风格.html">
+        <h3>经典架构风格</h3>
+        <p>10 种架构风格的优缺点、适用场景，以及直白的定义与实例。</p>
+        <div class="meta"><span class="badge">10 种风格</span><span class="arrow">→</span></div>
+      </a>
+      <a class="card" href="./模拟题/架构分层视图.html">
+        <h3>架构分层视图</h3>
+        <p>接入层、业务服务层、中台层、数据层、基础设施层的职责与组件。</p>
+        <div class="meta"><span class="badge">5 层</span><span class="arrow">→</span></div>
+      </a>
+      <a class="card" href="./模拟题/4+1视图.html">
+        <h3>4+1 视图</h3>
+        <p>逻辑、进程、开发、物理、场景五种视图的面向对象与核心内容。</p>
+        <div class="meta"><span class="badge">5 种视图</span><span class="arrow">→</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>质量属性</h2><span>识别 · 场景</span></div>
+    <div class="grid">
+      <a class="card" href="./模拟题/质量属性.html">
+        <h3>质量属性识别</h3>
+        <p>从需求描述反推性能、可用性、安全性、可修改性等质量属性。</p>
+        <div class="meta"><span class="badge">8 项属性</span><span class="arrow">→</span></div>
+      </a>
+      <a class="card" href="./模拟题/质量属性场景六要素.html">
+        <h3>质量属性场景六要素</h3>
+        <p>刺激源、刺激、制品、环境、响应、响应度量的识别与填写。</p>
+        <div class="meta"><span class="badge">6 要素</span><span class="arrow">→</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>案例分析 · 必答题</h2><span>优化策略</span></div>
+    <div class="grid">
+      <a class="card" href="./模拟题/高性能优化.html">
+        <h3>高性能优化</h3>
+        <p>接入层、应用层、缓存层、数据层、架构层五个层面的优化手段。</p>
+        <div class="meta"><span class="badge">5 个层面</span><span class="arrow">→</span></div>
+      </a>
+      <a class="card" href="./模拟题/高可用优化.html">
+        <h3>高可用优化</h3>
+        <p>消除单点、故障自愈、容灾备份、弹性伸缩、冗余隔离五类措施。</p>
+        <div class="meta"><span class="badge">5 类措施</span><span class="arrow">→</span></div>
+      </a>
+      <a class="card" href="./模拟题/安全架构优化.html">
+        <h3>安全架构优化</h3>
+        <p>传输、存储、访问、防护、审计五个安全域的具体做法与目的。</p>
+        <div class="meta"><span class="badge">5 个安全域</span><span class="arrow">→</span></div>
+      </a>
+      <a class="card" href="./模拟题/分布式系统特有优化策略.html">
+        <h3>分布式系统特有优化策略</h3>
+        <p>一致性、分布式事务、分区容错、分布式缓存、分布式协调。</p>
+        <div class="meta"><span class="badge">5 类策略</span><span class="arrow">→</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>案例分析 · 选答题</h2><span>微服务 · 数据</span></div>
+    <div class="grid">
+      <a class="card" href="./模拟题/微服务拆分原则.html">
+        <h3>微服务拆分原则</h3>
+        <p>单一职责、高内聚低耦合、数据自治、团队边界、业务粒度。</p>
+        <div class="meta"><span class="badge">5 条原则</span><span class="arrow">→</span></div>
+      </a>
+      <a class="card" href="./模拟题/分布式事务解决方案.html">
+        <h3>分布式事务解决方案</h3>
+        <p>2PC、TCC、SAGA、本地消息表 + MQ 的一致性、性能与场景对比。</p>
+        <div class="meta"><span class="badge">4 种方案</span><span class="arrow">→</span></div>
+      </a>
+      <a class="card" href="./模拟题/API网关核心功能.html">
+        <h3>API 网关核心功能</h3>
+        <p>路由转发、负载均衡、统一认证、限流熔断、日志监控、协议转换。</p>
+        <div class="meta"><span class="badge">6 项功能</span><span class="arrow">→</span></div>
+      </a>
+      <a class="card" href="./模拟题/缓存穿透击穿雪崩.html">
+        <h3>缓存穿透 / 击穿 / 雪崩</h3>
+        <p>三种缓存故障的成因、解决方案，以及一句话区分。</p>
+        <div class="meta"><span class="badge">3 类问题</span><span class="arrow">→</span></div>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    共 13 个闪卡页面 · 已配置 GitHub Pages：推送到 <code>main</code> 分支后自动部署，访问
+    <a href="https://jaxnext.github.io/architect-exam/">jaxnext.github.io/architect-exam</a>。
+  </footer>
+</div>
+</body>
+</html>
